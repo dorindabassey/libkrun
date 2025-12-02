@@ -43,7 +43,6 @@ pub struct Gpu {
     pub(crate) device_state: DeviceState,
     shm_region: Option<VirtioShmRegion>,
     pub(crate) sender: Option<Sender<u64>>,
-    virgl_flags: u32,
     #[cfg(target_os = "macos")]
     map_sender: Sender<WorkerMessage>,
     export_table: Option<ExportTable>,
@@ -54,7 +53,6 @@ pub struct Gpu {
 impl Gpu {
     pub(crate) fn with_queues(
         queues: Vec<VirtQueue>,
-        virgl_flags: u32,
         displays: Box<[DisplayInfo]>,
         display_backend: DisplayBackend<'static>,
         #[cfg(target_os = "macos")] map_sender: Sender<WorkerMessage>,
@@ -79,7 +77,6 @@ impl Gpu {
             device_state: DeviceState::Inactive,
             shm_region: None,
             sender: None,
-            virgl_flags,
             #[cfg(target_os = "macos")]
             map_sender,
             export_table: None,
@@ -89,7 +86,6 @@ impl Gpu {
     }
 
     pub fn new(
-        virgl_flags: u32,
         displays: Box<[DisplayInfo]>,
         display_backend: DisplayBackend<'static>,
         #[cfg(target_os = "macos")] map_sender: Sender<WorkerMessage>,
@@ -100,7 +96,6 @@ impl Gpu {
             .collect();
         Self::with_queues(
             queues,
-            virgl_flags,
             displays,
             display_backend,
             #[cfg(target_os = "macos")]
@@ -264,7 +259,6 @@ impl VirtioDevice for Gpu {
             self.queue_ctl.clone(),
             interrupt.clone(),
             shm_region,
-            self.virgl_flags,
             #[cfg(target_os = "macos")]
             self.map_sender.clone(),
             self.export_table.take(),
